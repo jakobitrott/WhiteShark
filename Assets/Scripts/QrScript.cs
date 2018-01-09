@@ -18,17 +18,25 @@ public class QrScript : MonoBehaviour {
     private bool cameraInitialized;
 
     private BarcodeReader barCodeReader;
+    public MainText mainTextScript;
+
+    public QrScript()
+    {
+    }
 
     void Start()
     {
+   
         barCodeReader = new BarcodeReader();
         StartCoroutine(InitializeCamera());
+        mainTextScript.results.text = "Ready to scan";
+
     }
 
     private IEnumerator InitializeCamera()
     {
         // Waiting a little seem to avoid the Vuforia's crashes.
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2f);
 
         var isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
         Debug.Log(String.Format("FormatSet : {0}", isFrameFormatSet));
@@ -45,29 +53,33 @@ public class QrScript : MonoBehaviour {
 
     private void Update()
     {
+       
         if (cameraInitialized)
         {
             try
             {
-                var cameraFeed = CameraDevice.Instance.GetCameraImage(Image.PIXEL_FORMAT.RGB888);
+                var cameraFeed = CameraDevice.Instance.GetCameraImage(Image.PIXEL_FORMAT.GRAYSCALE);
                 if (cameraFeed == null)
                 {
                     return;
                 }
-                var data = barCodeReader.Decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight, RGBLuminanceSource.BitmapFormat.RGB24);
+                var data = barCodeReader.Decode(cameraFeed.Pixels, cameraFeed.BufferWidth, cameraFeed.BufferHeight, RGBLuminanceSource.BitmapFormat.Gray8);
                 if (data != null)
                 {
                     // QRCode detected.
-                    Debug.Log(data.Text);
+                    mainTextScript.results.text = data.Text;
+
                 }
                 else
                 {
-                    Debug.Log("No QR code detected !");
+                    //QR not detected
+                   
+                    
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+               // Debug.LogError(e.Message);
             }
         }
     }
