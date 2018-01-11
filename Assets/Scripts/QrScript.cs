@@ -16,6 +16,7 @@ public class QrScript : MonoBehaviour {
 
 
     private bool cameraInitialized;
+    
 
     private BarcodeReader barCodeReader;
     public MainText mainTextScript;
@@ -28,32 +29,40 @@ public class QrScript : MonoBehaviour {
     {
    
         barCodeReader = new BarcodeReader();
-        StartCoroutine(InitializeCamera());
-        mainTextScript.results.text = "Ready to scan";
+        
+        mainTextScript.results.text = "Waiting for target...";
 
+    }
+
+    public void StartQR()
+    {
+        StartCoroutine(InitializeCamera());
+    }
+    public void StopQR()
+    {
+        cameraInitialized = false;
     }
 
     private IEnumerator InitializeCamera()
     {
         // Waiting a little seem to avoid the Vuforia's crashes.
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.2f);
 
         var isFrameFormatSet = CameraDevice.Instance.SetFrameFormat(Image.PIXEL_FORMAT.GRAYSCALE, true);
-        Debug.Log(String.Format("FormatSet : {0}", isFrameFormatSet));
-
+        
         // Force autofocus.
         var isAutoFocus = CameraDevice.Instance.SetFocusMode(CameraDevice.FocusMode.FOCUS_MODE_CONTINUOUSAUTO);
         if (!isAutoFocus)
         {
             CameraDevice.Instance.SetFocusMode(CameraDevice.FocusMode.FOCUS_MODE_NORMAL);
         }
-        Debug.Log(String.Format("AutoFocus : {0}", isAutoFocus));
+        
         cameraInitialized = true;
     }
 
     private void Update()
     {
-       
+        
         if (cameraInitialized)
         {
             try
@@ -73,8 +82,8 @@ public class QrScript : MonoBehaviour {
                 else
                 {
                     //QR not detected
-                   
-                    
+                    mainTextScript.results.text = "No QR detected.";
+
                 }
             }
             catch (Exception e)

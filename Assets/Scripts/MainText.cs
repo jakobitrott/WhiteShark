@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class MainText : MonoBehaviour {
 
     public Text results;
-    private int index = 0;
+
+    
     public MainText()
     {
 
